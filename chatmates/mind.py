@@ -26,6 +26,8 @@ class SimpleMind(AbstractMind):
 
 def call_api(json_data, url):
     import requests
+    print('\ncall_api: ', json_data)
+
     response = requests.post(
         f"{url}/v1/chat/completions",
         json=json_data
@@ -34,7 +36,7 @@ def call_api(json_data, url):
     completion = response.json()
     #print('completion: ', completion)
     ret = (completion['choices'][0]['message']['content'])
-    print('\n>> LM response:', ret)
+    print('\n>> LM response:\n', ret)
     return ret
 
 class VicunaMind(AbstractMind):
@@ -74,9 +76,16 @@ class VicunaLLM(LLM, VicunaMind):
         return {
             'name': 'vicunallm'
         }
+'''
+curl http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "7B",
+    "messages": [{"role": "user", "content": "Hello! What is your name?"}]
+  }'
+'''
 
-
-#from logging_utils import persistent_lru_cache
+  #from logging_utils import persistent_lru_cache
 #@persistent_lru_cache(maxsize=1000)
 
 def _OpenAIChatAPI(messages):
