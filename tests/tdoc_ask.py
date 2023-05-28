@@ -8,12 +8,14 @@ import click
 from chatmates import app
 from chatmates.app.doc_ask import DocAsk
 
+from chatmates.mind_tasks import answer_query_from_context
 
 @click.command()
 @click.option("--doc", '-d', help="Text File")
 @click.option("--build_index", '-b', is_flag=True, help="build index")
 @click.option("--query", '-q', help="query")
-def ask_doc(doc, build_index=False, query=None):
+@click.option("--model", '-m', help="model id")
+def ask_doc(doc, build_index=False, query=None, model='7B'):
 
     DA = DocAsk()
 
@@ -35,7 +37,9 @@ def ask_doc(doc, build_index=False, query=None):
         DA.ingest_embed_index(doc)
 
     if query: 
-        DA.query(query)
+        res_scores: '(text, score)*' = DA.query(query)
+        response = answer_query_from_context(query, res_scores, model_id=model)
+        print(response)
 
     
 @click.group()

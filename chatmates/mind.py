@@ -37,6 +37,7 @@ def call_api(json_data, url):
     #print('completion: ', completion)
     ret = (completion['choices'][0]['message']['content'])
     print('\n>> LM response:\n', ret)
+    print('\n>> over LM response.\n', flush=True)
     return ret
 
 class VicunaMind(AbstractMind):
@@ -77,6 +78,8 @@ class VicunaLLM(LLM, VicunaMind):
             'name': 'vicunallm'
         }
 '''
+TEST
+
 curl http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{

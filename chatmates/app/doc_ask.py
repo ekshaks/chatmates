@@ -61,9 +61,14 @@ class DocAsk:
         #vector_q = store.build_query().find(qrep).limit(10).build()
         #vector_results = store.execute_query(vector_q)
         results, scores = store.find(qrep, limit=limit, search_field='dense_rep')
+        results_text = [res.text for res in results]
+        res_scores = list(zip(results_text, scores))
+        for res, score in res_scores:
+            print(score, res)
 
-        for res, score in list(zip(results, scores)):
-            print(score, res.text)
+            
+        
+        return res_scores
 
     
 
