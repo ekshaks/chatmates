@@ -24,6 +24,8 @@ class SimpleMind(AbstractMind):
         self.log(ret)
         return ret
 
+import httpx
+
 def call_api(json_data, url):
     import requests
     print('\ncall_api: ', json_data)
@@ -34,6 +36,19 @@ def call_api(json_data, url):
     )
     response.raise_for_status()
     completion = response.json()
+    #print('completion: ', completion)
+    ret = (completion['choices'][0]['message']['content'])
+    print('\n>> LM response:\n', ret)
+    print('\n>> over LM response.\n', flush=True)
+    return ret
+
+async def call_api_async(json_data, url, timeout=None):
+    print('\ncall_api_async: ', json_data['model'])
+
+    url = f"{url}/v1/chat/completions"
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        response = await client.post(url, json=json_data)
+        completion = response.json()
     #print('completion: ', completion)
     ret = (completion['choices'][0]['message']['content'])
     print('\n>> LM response:\n', ret)
@@ -61,6 +76,11 @@ class VicunaMind(AbstractMind):
         query = self.build_query(query, stop=stop)
         ret = call_api(query, self.url)
         return ret
+    
+    async def ask_async(self, query, stop=None):
+        query = self.build_query(query, stop=stop)
+        ret = await call_api_async(query, self.url)
+        return ret
 
 from langchain.llms.base import LLM
 from typing import Optional, List, Mapping, Any
@@ -79,11 +99,13 @@ class VicunaLLM(LLM, VicunaMind):
         }
 '''
 TEST
+fastchat-t5-3b-v1.0
+7B
 
-curl http://localhost:8000/v1/chat/completions \
+curl http://127.0.0.1:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "7B",
+    "model": "fastchat-t5-3b-v1.0",
     "messages": [{"role": "user", "content": "Hello! What is your name?"}]
   }'
 '''
@@ -121,3 +143,8 @@ def _OpenAIChatAPI(messages):
 def OpenAIChatAPI(messages):
     msgs = tuple(tuple(sorted(d.items())) for d in messages)
     return _OpenAIChatAPI(msgs)
+
+
+'''
+TODO: https://huggingface.co/tiiuae/falcon-7b
+'''
